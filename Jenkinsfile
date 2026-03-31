@@ -1,50 +1,52 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            // Maven image with JDK 17 (change to 11/8 if your project requires)
+            image 'maven:3.9.6-eclipse-temurin-17'
+            // Run as root to avoid permission issues writing to workspace/.m2
+            args '-u root:root -v $HOME/.m2:/root/.m2'
+            reuseNode true
+        }
+    }
 
+     environment {
+        // Optional: speed up Maven, reduce noise
+        MAVEN_OPTS = '-Dmaven.repo.local=/root/.m2/repository'
+        MVN_CMD    = 'mvn -B -ntp'
+    }
     
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/jagdishmodi/hello-world-2.git'
+                 sh 'java -version'
+                sh 'mvn -version'
             }
         }
 
-  stage('Build') {
+ stage('Build + Test') {
             steps {
-                sh 'mvn clean compile'
+                sh '${MVN_CMD} clean test'
             }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
 
         stage('Package') {
             steps {
-                sh 'mvn package'
+                sh '${MVN_CMD} package'
             }
-        }     
+        }
 
         stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+                // This project is packaging=war, so archive WAR (also keep JAR if produced)
+                archiveArtifacts artifacts: 'target/*.war, target/*.jar', fingerprint: true
             }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
-                // Add deployment script or copy JAR to server
-            }
-        }
-        }
-    
- post {
-        always {
-            junit 'target/surefire-reports/*.xml'
         }
     }
    
