@@ -27,6 +27,19 @@ pipeline {
                 sh 'mvn package'
             }
         }     
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                // Add deployment script or copy JAR to server
+            }
+        }
         }
     
 
