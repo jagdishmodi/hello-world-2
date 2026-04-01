@@ -31,7 +31,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: env.BRANCH_NAME, url: 'https://github.com/jagdishmodi/hello-world-2.git'
+                git branch: params.GIT_BRANCH, url: 'https://github.com/jagdishmodi/hello-world-2.git'
                  sh 'java -version'
                 sh 'mvn -version'
             }
@@ -86,7 +86,20 @@ pipeline {
                 }
             }
         }
-   
+           stage('Approve Production Deploy') {
+            when {
+                allOf {
+                    branch 'main'
+                    expression { return params.DEPLOY_PROD }
+                }
+            }
+            input {
+                message 'Deploy to Production?'
+                ok 'Deploy Now'
+                submitter 'admin,devops'
+            }
+        }
+
     }
    
 }
