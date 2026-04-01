@@ -87,18 +87,22 @@ pipeline {
             }
         }
            stage('Approve Production Deploy') {
-            when {
-                allOf {
-                    branch 'main'
-                    expression { return params.DEPLOY_PROD }
-                }
-            }
-            input {
-                message 'Deploy to Production?'
-                ok 'Deploy Now'
-                submitter 'admin,devops'
-            }
+    when {
+        allOf {
+            branch 'main'
+            expression { return params.DEPLOY_PROD }
         }
+    }
+    steps {
+        timeout(time: 30, unit: 'MINUTES') {
+            input(
+                message: 'Deploy to Production?',
+                ok: 'Deploy Now',
+                submitter: 'admin,devops'
+            )
+        }
+    }
+}
 
     }
    
