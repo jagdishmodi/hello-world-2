@@ -18,11 +18,10 @@ pipeline {
 
     }
     
-parameters {
-  string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Branch to build')
-}
+
 
     parameters {
+         string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Branch to build')
         booleanParam(name: 'DEPLOY_PROD', defaultValue: false,
                      description: 'Deploy to production?')
         choice(name: 'LOG_LEVEL', choices: ['INFO','DEBUG','WARN'],
