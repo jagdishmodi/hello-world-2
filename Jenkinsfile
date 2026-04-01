@@ -36,6 +36,23 @@ pipeline {
             }
         }
 
+            stage('Parallel Tests') {
+            failFast false
+            parallel {
+                stage('Unit Tests') {
+                    steps { sh 'mvn test -Dtest=*Unit*' }
+                    post { always { junit 'target/surefire-reports/*.xml' } }
+                }
+                stage('Integration Tests') {
+                    steps { sh 'mvn verify -Dtest=*IT*' }
+                }
+                stage('Code Quality') {
+                                        steps {
+                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL}"
+                    }
+                }
+            }
+        }
         stage('Package') {
             steps {
                 sh '${MVN_CMD} package'
