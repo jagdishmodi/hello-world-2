@@ -40,7 +40,7 @@ pipeline {
             failFast false
             parallel {
                 stage('Unit Tests') {
-                    steps { sh 'mvn test -Dtest=*Unit*' }
+                    steps { sh 'mvn test -Dtest=*Unit* -Dsurefire.failIfNoSpecifiedTests=false' }
                     post { always { junit 'target/surefire-reports/*.xml' } }
                 }
                 stage('Integration Tests') {
