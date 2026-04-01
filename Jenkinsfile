@@ -3,7 +3,7 @@ pipeline {
         docker {
             // Maven image with JDK 17 (change to 11/8 if your project requires)
             image 'maven:3.9.6-eclipse-temurin-17'
-            // Run as root to avoid permission issues writing to workspace/.m2
+            // Run as root to avoid permission issues writing to workspace/.m2.
             args '-u root:root -v $HOME/.m2:/root/.m2'
             reuseNode true
         }
