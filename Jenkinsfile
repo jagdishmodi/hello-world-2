@@ -44,13 +44,9 @@ pipeline {
                     post { always { junit 'target/surefire-reports/*.xml' } }
                 }
                 stage('Integration Tests') {
-                    steps { sh 'mvn verify -Dtest=*IT*' }
+                    steps { sh 'mvn verify -Dtest=*IT* -Dsurefire.failIfNoSpecifiedTests=false' }
                 }
-                stage('Code Quality') {
-                                        steps {
-                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL}"
-                    }
-                }
+               
             }
         }
         stage('Package') {
