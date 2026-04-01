@@ -18,6 +18,10 @@ pipeline {
 
     }
     
+parameters {
+  string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Branch to build')
+}
+
     parameters {
         booleanParam(name: 'DEPLOY_PROD', defaultValue: false,
                      description: 'Deploy to production?')
