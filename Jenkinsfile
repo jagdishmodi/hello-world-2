@@ -13,13 +13,22 @@ pipeline {
         // Optional: speed up Maven, reduce noise
         MAVEN_OPTS = '-Dmaven.repo.local=/root/.m2/repository'
         MVN_CMD    = 'mvn -B -ntp'
+        APP_NAME    = 'my-app'
+        DOCKER_REPO = 'myregistry/my-app'
+
     }
     
+    parameters {
+        booleanParam(name: 'DEPLOY_PROD', defaultValue: false,
+                     description: 'Deploy to production?')
+        choice(name: 'LOG_LEVEL', choices: ['INFO','DEBUG','WARN'],
+               description: 'Logging level')
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/jagdishmodi/hello-world-2.git'
+                git branch: env.BRANCH_NAME, url: 'https://github.com/jagdishmodi/hello-world-2.git'
                  sh 'java -version'
                 sh 'mvn -version'
             }
@@ -61,6 +70,20 @@ pipeline {
                 archiveArtifacts artifacts: 'target/*.war, target/*.jar', fingerprint: true
             }
         }
+        stage('Docker Build & Push') {
+            when {
+                anyOf { branch 'master'; branch 'release/*'; tag 'v*' }
+            }
+            steps {
+                script {
+                    def tag = env.TAG_NAME ?: env.BRANCH_NAME.replace('/', '-')
+                    env.DOCKER_TAG = tag
+                    sh "docker build -t ${DOCKER_REPO}:${tag} ."
+                    sh "docker push ${DOCKER_REPO}:${tag}"
+                }
+            }
+        }
+   
     }
    
 }
